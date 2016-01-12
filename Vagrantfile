@@ -14,6 +14,7 @@ $instance_name_prefix = "core"
 $update_channel = "alpha"
 $image_version = "current"
 $enable_serial_logging = false
+
 $share_home = false
 $vm_gui = false
 $vm_memory = 1024
@@ -97,7 +98,7 @@ Vagrant.configure("2") do |config|
           vb.customize ["modifyvm", :id, "--uartmode1", serialFile]
         end
       end
-
+      
       if $expose_docker_tcp
         config.vm.network "forwarded_port", guest: 2375, host: ($expose_docker_tcp + i - 1), auto_correct: true
       end
@@ -125,6 +126,8 @@ Vagrant.configure("2") do |config|
 
       # Uncomment below to enable NFS for sharing the host machine into the coreos-vagrant VM.
       #config.vm.synced_folder ".", "/home/core/share", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
+      config.vm.synced_folder "./share", "/home/core/share", id: "core", :nfs => true, :mount_options => ['nolock,vers=3,udp']
+
       $shared_folders.each_with_index do |(host_folder, guest_folder), index|
         config.vm.synced_folder host_folder.to_s, guest_folder.to_s, id: "core-share%02d" % index, nfs: true, mount_options: ['nolock,vers=3,udp']
       end
@@ -138,6 +141,32 @@ Vagrant.configure("2") do |config|
         config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
       end
 
+      ## added port forwarding
+      # https for scipyserver container
+      config.vm.network "forwarded_port", guest: 443, host: 4430
+      
+      # ports for galaxy-stable container
+      config.vm.network "forwarded_port", guest: 8080, host: 8080
+      config.vm.network "forwarded_port", guest: 8021, host: 8021
+      config.vm.network "forwarded_port", guest: 8800, host: 8800
+      config.vm.network "forwarded_port", guest: 9001, host: 9001
+      
+      # ports for ipython notebook
+      config.vm.network "forwarded_port", guest: 7777, host: 7777
+      
+      # port for neo4j
+      config.vm.network "forwarded_port", guest: 7474, host: 7474
+      
+      # and the other ports for the other containers..
+      config.vm.network "forwarded_port", guest: 5050, host: 5050
+      config.vm.network "forwarded_port", guest: 8000, host: 8000
+      config.vm.network "forwarded_port", guest: 8042, host: 8042
+      config.vm.network "forwarded_port", guest: 8787, host: 8787
+      config.vm.network "forwarded_port", guest: 8890, host: 8890
+      config.vm.network "forwarded_port", guest: 9200, host: 9200
+      config.vm.network "forwarded_port", guest: 9292, host: 9292
+      config.vm.network "forwarded_port", guest: 9300, host: 9300
+      config.vm.network "forwarded_port", guest: 50070, host: 50070
     end
   end
 end
