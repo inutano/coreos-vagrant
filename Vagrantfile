@@ -17,7 +17,7 @@ $enable_serial_logging = false
 
 $share_home = false
 $vm_gui = false
-$vm_memory = 1024
+$vm_memory = 2048
 $vm_cpus = 1
 $shared_folders = {}
 $forwarded_ports = {}
